@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "tsx src/index.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "seed": "docker compose -f ../docker-compose.yml exec -T postgres psql -U homeheist -d homeheist < db/seed.sql"
   },
   "dependencies": {
     "@google/genai": "^2.27.0",

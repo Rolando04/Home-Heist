@@ -73,10 +73,14 @@ function describeProfile(p: BorrowerProfile): string {
 /**
  * Institution Agent: finds mortgage lenders that serve the borrower's
  * area — favoring credit unions, community banks, CDFIs and state housing
- * programs over the big national banks — then persists them.
+ * programs over the big national banks — then persists them. When HMDA
+ * filer data is available it anchors the search to lenders that actually
+ * originated mortgages in the borrower's county.
  */
 export async function collectInstitutions(
   p: BorrowerProfile,
+  geo?: { countyName: string; stateAbbr: string } | null,
+  hmdaFilers: string[] = [],
 ): Promise<{ id: string; name: string }[]> {
   const agent = new Agent({
     name: "institution-agent",
@@ -87,12 +91,21 @@ export async function collectInstitutions(
       "with real URLs only.",
   });
 
-  const research = await agent.research(
-    `Find 6-8 mortgage lenders that serve borrowers in ZIP ${p.zip}. ` +
+  const prompt = hmdaFilers.length
+    ? `These lenders filed HMDA mortgage data in ` +
+      `${geo?.countyName ?? "the borrower's county"}, ${geo?.stateAbbr ?? ""}: ` +
+      `${hmdaFilers.slice(0, 40).join("; ")}.\n` +
+      `From that list (and any similar lenders you know serve ZIP ${p.zip}), ` +
+      `pick 6-8 that are credit unions, community banks, CDFIs, or state ` +
+      `housing finance agency programs — lenders whose rates are NOT easily ` +
+      `found on Bankrate/NerdWallet. For each give: name, type, and official ` +
+      `website URL.`
+    : `Find 6-8 mortgage lenders that serve borrowers in ZIP ${p.zip}. ` +
       `Prioritize credit unions, community banks, CDFIs, and state housing ` +
       `finance agency programs — lenders whose rates are NOT easily found on ` +
-      `Bankrate/NerdWallet. For each give: name, type, and official website URL.`,
-  );
+      `Bankrate/NerdWallet. For each give: name, type, and official website URL.`;
+
+  const research = await agent.research(prompt);
 
   const extracted = await agent.extractJson<ExtractedInstitution[]>(
     "Extract the lenders as JSON. Use the official homepage URL.",
@@ -134,9 +147,10 @@ export async function collectLoans(
       `For each of these lenders: ${names}.\n` +
       `Find their current mortgage products relevant to this borrower ` +
       `(e.g. 30yr fixed, 15yr fixed, FHA, ARM, first-time-buyer programs). ` +
-      `For each product give: lender name, product name, loan type, ` +
-      `term in months, interest rate, APR, min/max credit score if stated, ` +
-      `and the product page URL.`,
+      `Fetch each lender's actual published rates page — do not rely on ` +
+      `search snippets. For each product give: lender name, product name, ` +
+      `loan type, term in months, interest rate, APR, min/max credit score ` +
+      `if stated, and the product page URL.`,
   );
 
   const extracted = await agent.extractJson<ExtractedLoan[]>(

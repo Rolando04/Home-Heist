@@ -55,9 +55,11 @@ export class Agent {
   }
 
   /**
-   * Grounded web research via Google Search. Kept as its own call because
-   * the API doesn't allow mixing googleSearch with function/MCP tools in
-   * one request. Returns the answer text plus cited source URLs.
+   * Grounded web research via Google Search + URL Context (the model can
+   * fetch and read the pages it finds — essential for rate tables living
+   * on lender sites). Kept as its own call because the API doesn't allow
+   * mixing grounding tools with function/MCP tools in one request.
+   * Returns the answer text plus cited/retrieved source URLs.
    */
   async research(prompt: string): Promise<ResearchResult> {
     const response = await this.ai.models.generateContent({
@@ -65,14 +67,19 @@ export class Agent {
       contents: prompt,
       config: {
         systemInstruction: this.systemInstruction,
-        tools: [{ googleSearch: {} }],
+        tools: [{ googleSearch: {} }, { urlContext: {} }],
       },
     });
-    const chunks =
-      response.candidates?.[0]?.groundingMetadata?.groundingChunks ?? [];
+    const candidate = response.candidates?.[0];
+    const chunks = candidate?.groundingMetadata?.groundingChunks ?? [];
     const sources = chunks
       .map((c) => c.web)
       .filter((w): w is { title?: string; uri?: string } => w != null);
+    const retrieved =
+      candidate?.urlContextMetadata?.urlMetadata ?? [];
+    for (const r of retrieved) {
+      if (r.retrievedUrl) sources.push({ uri: r.retrievedUrl });
+    }
     return { text: response.text ?? "", sources };
   }
 

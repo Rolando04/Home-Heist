@@ -1,6 +1,7 @@
 import { Agent } from "./agent.js";
 import { collectInstitutions, collectLoans } from "./collectors.js";
 import { createDbMcpClient } from "./dbMcp.js";
+import { fetchHmdaFilers, zipToCounty } from "./hmda.js";
 import type { BorrowerProfile } from "./db.js";
 
 export interface RecommendResult {
@@ -11,13 +12,21 @@ export interface RecommendResult {
 
 /**
  * Main agent flow:
- *  1. Institution agent discovers lenders (grounded web search -> DB)
- *  2. Loan agent discovers their products/rates (grounded web search -> DB)
- *  3. Main agent queries the DB through MCP and synthesizes a
+ *  1. Resolve ZIP -> county; pull HMDA filers (who actually lends there).
+ *     Falls back silently if the public APIs are unreachable.
+ *  2. Institution agent discovers lenders (grounded web search -> DB)
+ *  3. Loan agent discovers their products/rates (grounded web search -> DB)
+ *  4. Main agent queries the DB through MCP and synthesizes a
  *     recommendation for the borrower.
  */
 export async function recommend(p: BorrowerProfile): Promise<RecommendResult> {
-  const institutions = await collectInstitutions(p);
+  const geo = await zipToCounty(p.zip);
+  const filers = geo ? await fetchHmdaFilers(geo) : [];
+  const institutions = await collectInstitutions(
+    p,
+    geo ? { countyName: geo.countyName, stateAbbr: geo.stateAbbr } : null,
+    filers.map((f) => f.name),
+  );
   const loansFound = await collectLoans(p, institutions);
 
   const dbClient = await createDbMcpClient();
