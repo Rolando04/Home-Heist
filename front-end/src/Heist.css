@@ -1,10 +1,24 @@
 .housing-grid {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 30px 10px;
-  padding: 20px;
+  width: 90%;
+  max-width: 1200px;
+  margin: 0 auto;
+
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  justify-items: center;
+  gap: 0px;
+}
+
+@media (max-width: 900px) {
+  .housing-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .housing-grid {
+    grid-template-columns: 1fr;
+  }
 }
 .housing-card {
   display: flex;
@@ -19,4 +33,29 @@
   max-width: 400px;
   margin: 30px;
   width: 200px;
+}
+
+.query-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  max-width: 100%;
+  gap: 30px;
+  
+}
+
+.query-container .sort-container {
+  display: flex;
+  flex-direction: row;
+  align-items: left;
+  justify-content: left;
+  
+}
+
+.query-container .filter-dropdown {
+  display: flex;
+  flex-direction: row;
+  align-items: left;
+  justify-content: left;
 }

@@ -33,11 +33,11 @@
 @media (prefers-color-scheme: dark) {
   :root {
     --text: #44120a;
-    --text-h: #210703;
+    --text-h: #020000;
     --bg-header: #6b0808;
-    --shadow-header: #a01111;
+    --shadow-header: #9d0100;
     --bg: #dbd6d6;
-    --border: #a01111;
+    --border: #9d0100;
     --code-bg: #b5bbe7;
     --accent: #c6a305;
     --accent-bg: rgba(198, 163, 5, 0.15);
@@ -73,7 +73,6 @@ h2 {
   font-family: var(--heading);
   font-weight: 500;
   color: var(--text-h);
-  text-shadow: 0 2px 4px var(--shadow-header);
 }
 
 h1 {
@@ -137,8 +136,8 @@ code {
 }
 
 .Logo img {
-  width: 32px;
-  height: 32px;
+  width: 64px;
+  height: 64px;
 }
 
 .nav {
@@ -146,6 +145,9 @@ code {
   gap: 30px;
 }
 
+.header-container h1{
+  text-shadow: 2px 2px 4px var(--shadow-header);
+}
 .nav a {
   text-decoration: none;
   color: var(--text-h);

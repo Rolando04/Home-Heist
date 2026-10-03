@@ -7,6 +7,7 @@ import './App.css'
 import Header from './components/Header'
 import Home from './pages/Home'
 import Heist from './pages/Heist'
+import Contact from './pages/Contact'
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/heist" element={<Heist />} />
+          <Route path="/contact" element={<Contact />} />
         </Routes>
       </BrowserRouter>
   )
