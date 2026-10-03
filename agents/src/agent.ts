@@ -25,7 +25,7 @@ export class Agent {
   constructor(opts: AgentOptions) {
     this.name = opts.name;
     this.systemInstruction = opts.systemInstruction;
-    this.model = opts.model ?? "gemini-2.5-flash";
+    this.model = opts.model ?? "gemini-3.8-flash";
     this.mcpClients = opts.mcpClients ?? [];
     this.ai = new GoogleGenAI({
       apiKey: opts.apiKey ?? process.env.GEMINI_API_KEY,
@@ -38,7 +38,7 @@ export class Agent {
    * calling. Pass prior turns in `history` for multi-turn use.
    */
   async ask(prompt: string, history: Content[] = []): Promise<string> {
-    const response = await this.ai.models.generateContent({
+    const response = await this.generateWithRetry({
       model: this.model,
       contents: [
         ...history,
@@ -62,7 +62,7 @@ export class Agent {
    * Returns the answer text plus cited/retrieved source URLs.
    */
   async research(prompt: string): Promise<ResearchResult> {
-    const response = await this.ai.models.generateContent({
+    const response = await this.generateWithRetry({
       model: this.model,
       contents: prompt,
       config: {
@@ -92,7 +92,7 @@ export class Agent {
     sourceText: string,
     responseJsonSchema: Record<string, unknown>,
   ): Promise<T> {
-    const response = await this.ai.models.generateContent({
+    const response = await this.generateWithRetry({
       model: this.model,
       contents: `${instruction}\n\nSOURCE TEXT:\n${sourceText}`,
       config: {
@@ -102,5 +102,28 @@ export class Agent {
       },
     });
     return JSON.parse(response.text ?? "null") as T;
+  }
+
+  /**
+   * Retry transient 429/503s with backoff. Grounding and new-model
+   * capacity both flake under free-tier quota — a couple of retries
+   * ride through most of it.
+   */
+  private async generateWithRetry(
+    params: Parameters<GoogleGenAI["models"]["generateContent"]>[0],
+    attempts = 3,
+  ) {
+    let lastErr: unknown;
+    for (let i = 0; i < attempts; i++) {
+      try {
+        return await this.ai.models.generateContent(params);
+      } catch (e) {
+        lastErr = e;
+        const status = (e as { status?: number }).status;
+        if (status !== 429 && status !== 503) throw e;
+        await new Promise((r) => setTimeout(r, 2000 * (i + 1)));
+      }
+    }
+    throw lastErr;
   }
 }

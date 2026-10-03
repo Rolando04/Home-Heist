@@ -105,24 +105,32 @@ export async function collectInstitutions(
       `finance agency programs — lenders whose rates are NOT easily found on ` +
       `Bankrate/NerdWallet. For each give: name, type, and official website URL.`;
 
-  const research = await agent.research(prompt);
+  try {
+    const research = await agent.research(prompt);
 
-  const extracted = await agent.extractJson<ExtractedInstitution[]>(
-    "Extract the lenders as JSON. Use the official homepage URL.",
-    research.text,
-    INSTITUTION_SCHEMA,
-  );
+    const extracted = await agent.extractJson<ExtractedInstitution[]>(
+      "Extract the lenders as JSON. Use the official homepage URL.",
+      research.text,
+      INSTITUTION_SCHEMA,
+    );
 
-  const saved: { id: string; name: string }[] = [];
-  for (const inst of extracted ?? []) {
-    const id = await upsertInstitution({
-      institution_name: inst.institution_name,
-      institution_type: inst.institution_type ?? null,
-      institution_link: inst.institution_link ?? null,
-    });
-    saved.push({ id, name: inst.institution_name });
+    const saved: { id: string; name: string }[] = [];
+    for (const inst of extracted ?? []) {
+      const id = await upsertInstitution({
+        institution_name: inst.institution_name,
+        institution_type: inst.institution_type ?? null,
+        institution_link: inst.institution_link ?? null,
+      });
+      saved.push({ id, name: inst.institution_name });
+    }
+    return saved;
+  } catch (e) {
+    console.warn(
+      `[institution-agent] collection failed, continuing with existing DB rows: ` +
+        `${(e as Error).message.slice(0, 160)}`,
+    );
+    return [];
   }
-  return saved;
 }
 
 /**
@@ -141,24 +149,42 @@ export async function collectLoans(
       "you can point to. Never invent rates.",
   });
 
-  const names = institutions.map((i) => i.name).join(", ");
-  const research = await agent.research(
-    `Borrower profile: ${describeProfile(p)}.\n` +
-      `For each of these lenders: ${names}.\n` +
+  const names = institutions.length
+    ? institutions.map((i) => i.name).join(", ")
+    : "lenders in the borrower's area"; // institution collection may have failed
+  let research;
+  try {
+    research = await agent.research(
+      `Borrower profile: ${describeProfile(p)}.\n` +
+        `For each of these lenders: ${names}.\n` +
       `Find their current mortgage products relevant to this borrower ` +
       `(e.g. 30yr fixed, 15yr fixed, FHA, ARM, first-time-buyer programs). ` +
       `Fetch each lender's actual published rates page — do not rely on ` +
       `search snippets. For each product give: lender name, product name, ` +
       `loan type, term in months, interest rate, APR, min/max credit score ` +
       `if stated, and the product page URL.`,
-  );
+    );
+  } catch (e) {
+    console.warn(
+      `[loan-agent] research failed: ${(e as Error).message.slice(0, 160)}`,
+    );
+    return 0;
+  }
 
-  const extracted = await agent.extractJson<ExtractedLoan[]>(
-    "Extract the loan products as JSON. Rates/APR as numbers like 6.375. " +
-      "Omit fields not stated in the source.",
-    research.text,
-    LOAN_SCHEMA,
-  );
+  let extracted: ExtractedLoan[] | null = null;
+  try {
+    extracted = await agent.extractJson<ExtractedLoan[]>(
+      "Extract the loan products as JSON. Rates/APR as numbers like 6.375. " +
+        "Omit fields not stated in the source.",
+      research.text,
+      LOAN_SCHEMA,
+    );
+  } catch (e) {
+    console.warn(
+      `[loan-agent] extraction failed: ${(e as Error).message.slice(0, 160)}`,
+    );
+    return 0;
+  }
 
   const idByName = new Map(
     institutions.map((i) => [i.name.toLowerCase(), i.id]),

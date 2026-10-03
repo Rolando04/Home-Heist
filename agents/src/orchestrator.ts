@@ -2,7 +2,7 @@ import { Agent } from "./agent.js";
 import { collectInstitutions, collectLoans } from "./collectors.js";
 import { createDbMcpClient } from "./dbMcp.js";
 import { fetchHmdaFilers, zipToCounty } from "./hmda.js";
-import type { BorrowerProfile } from "./db.js";
+import { logSearch, searchLoans, type BorrowerProfile } from "./db.js";
 
 export interface RecommendResult {
   institutionsFound: number;
@@ -44,14 +44,23 @@ export async function recommend(p: BorrowerProfile): Promise<RecommendResult> {
       mcpClients: [dbClient],
     });
 
-    const recommendation = await main.ask(
-      `Borrower: credit score ${p.creditScore}, income $${p.income}, ` +
-        `ZIP ${p.zip}, price $${p.propertyPrice}, down $${p.downPayment}, ` +
-        `loan amount $${p.loanAmount}` +
-        (p.loanType ? `, wants ${p.loanType}` : "") +
-        (p.termMonths ? `, ${p.termMonths}-month term` : "") +
-        `. Query the database, log this search, then give your recommendation.`,
-    );
+    let recommendation: string;
+    try {
+      recommendation = await main.ask(
+        `Borrower: credit score ${p.creditScore}, income $${p.income}, ` +
+          `ZIP ${p.zip}, price $${p.propertyPrice}, down $${p.downPayment}, ` +
+          `loan amount $${p.loanAmount}` +
+          (p.loanType ? `, wants ${p.loanType}` : "") +
+          (p.termMonths ? `, ${p.termMonths}-month term` : "") +
+          `. Query the database, log this search, then give your recommendation.`,
+      );
+    } catch (e) {
+      console.warn(
+        `[main-agent] recommendation failed, using deterministic fallback: ` +
+          `${(e as Error).message.slice(0, 160)}`,
+      );
+      recommendation = await fallbackRecommendation(p);
+    }
 
     return {
       institutionsFound: institutions.length,
@@ -61,4 +70,34 @@ export async function recommend(p: BorrowerProfile): Promise<RecommendResult> {
   } finally {
     await dbClient.close();
   }
+}
+
+/**
+ * Last-resort path when Gemini is unreachable: rank DB rows by APR and
+ * compute P&I payments directly. Produces a real (if plain) answer so a
+ * live demo never dead-ends.
+ */
+async function fallbackRecommendation(p: BorrowerProfile): Promise<string> {
+  await logSearch(null, p).catch(() => {});
+  const rows = await searchLoans({ creditScore: p.creditScore });
+  if (!rows.length) return "No loan products in the database.";
+
+  const lines = rows.slice(0, 3).map((r, i) => {
+    const payment = r.apr != null ? monthlyPayment(p.loanAmount, r.apr, r.term_months ?? 360) : null;
+    return (
+      `${i + 1}. **${r.product_name}** — ${r.institution_name ?? "unknown lender"}\n` +
+      `   APR ${r.apr ?? "?"}%` +
+      (payment != null ? `, est. P&I $${payment.toLocaleString("en-US", { maximumFractionDigits: 0 })}/mo` : "") +
+      (r.product_link ? `\n   ${r.product_link}` : "")
+    );
+  });
+  return (
+    `**Recommendation** (offline fallback — rates from database)\n\n` +
+    lines.join("\n\n")
+  );
+}
+
+function monthlyPayment(principal: number, aprPct: number, months: number): number {
+  const r = aprPct / 100 / 12;
+  return (principal * r * Math.pow(1 + r, months)) / (Math.pow(1 + r, months) - 1);
 }
