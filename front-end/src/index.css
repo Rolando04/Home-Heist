@@ -4,9 +4,9 @@
   --bg: #fff;
   --border: #e5e4e7;
   --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
+  --accent: #a88a05;
+  --accent-bg: #c6a305;
+  --accent-border: #c6a305;
   --social-bg: rgba(244, 243, 236, 0.5);
   --shadow:
     rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
@@ -38,10 +38,10 @@
     --shadow-header: #a01111;
     --bg: #dbd6d6;
     --border: #a01111;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
+    --code-bg: #b5bbe7;
+    --accent: #c6a305;
+    --accent-bg: rgba(198, 163, 5, 0.15);
+    --accent-border: rgba(198, 163, 5, 0.5);
     --social-bg: rgba(47, 48, 58, 0.5);
     --shadow:
       rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
@@ -144,4 +144,17 @@ code {
 .nav {
   display: flex;
   gap: 30px;
+}
+
+.nav a {
+  text-decoration: none;
+  color: var(--text-h);
+  font-weight: bold;
+  font-size: 30px;
+  transition: color 0.3s ease;
+  text-shadow: 0 1px 2px var(--shadow-header);
+}
+
+.nav a:hover {
+  color: var(--accent);
 }

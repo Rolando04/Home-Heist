@@ -1,4 +1,5 @@
 
+import { Link } from 'react-router-dom'
 import '../index.css'
 
 
@@ -13,9 +14,9 @@ function Header() {
         </div>
 
         <div className="nav">
-            <a href="#">Home</a>
-            <a href="#">Heist</a>
-            <a href="#">Contact</a>
+            <Link to="/">Home</Link>
+            <Link to="/heist">Heist</Link>
+            <Link to="/contact">Contact</Link>
         </div>
         </div>
     </header>
