@@ -1,0 +1,53 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model institution {
+  institution_id   String         @id @db.VarChar(128)
+  institution_name String?        @db.VarChar(128)
+  institution_type String?        @db.VarChar(255)
+  institution_link String?        @db.VarChar(255)
+  loan_product     loan_product[]
+}
+
+model loan_product {
+  product_id       String       @id @db.VarChar(128)
+  institution_id   String?      @db.VarChar(128)
+  product_name     String?      @db.VarChar(128)
+  loan_type        String?      @db.VarChar(128)
+  term_months      Int?
+  interest_rate    Float?
+  apr              Float?
+  min_credit_score Int?
+  max_credit_score Int?
+  product_link     String?      @db.VarChar(255)
+  institution      institution? @relation(fields: [institution_id], references: [institution_id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model loan_search {
+  search_id      String        @id @db.VarChar(128)
+  user_id        String?       @db.VarChar(128)
+  user_income    Float?
+  credit_score   Int?
+  property_zip   String?       @db.VarChar(10)
+  property_price Float?
+  down_payment   Float?
+  loan_amount    Float?
+  creation_time  DateTime?     @db.Time(6)
+  creation_date  DateTime?     @db.Date
+  product_user   product_user? @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model product_user {
+  user_id       String        @id @db.VarChar(128)
+  email         String?       @db.VarChar(128)
+  passwordhash  String?       @db.VarChar(255)
+  creation_time DateTime?     @db.Time(6)
+  creation_date DateTime?     @db.Date
+  loan_search   loan_search[]
+}
