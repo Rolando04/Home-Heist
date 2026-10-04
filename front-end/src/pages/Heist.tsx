@@ -23,8 +23,11 @@ function Heist() {
     const [sortOption, setSortOption] = useState('apr-low')
     const [loans, setLoans] = useState<Loan[]>([])
     const [search, setSearch] = useState("")
+    const [loading, setLoading] = useState(false)
 
     useEffect(() => {
+    setLoading(true)
+
     fetch(`${import.meta.env.VITE_API_URL}/api/loan-products`)
         .then((response) => response.json())
         .then((rows) => {
@@ -33,9 +36,14 @@ function Heist() {
         .catch((error) => {
             console.error("Failed to fetch loans:", error)
         })
+        .finally(() => {
+            setLoading(false)
+        })
 }, [])
 
     const handleSearch = () => {
+    setLoading(true)
+
     fetch(
         `${import.meta.env.VITE_API_URL}/api/loan-products?search=${encodeURIComponent(search)}`
     )
@@ -45,6 +53,9 @@ function Heist() {
         })
         .catch((error) => {
             console.error("Search failed:", error)
+        })
+        .finally(() => {
+            setLoading(false)
         })
 }
 
@@ -85,7 +96,14 @@ function Heist() {
                 </button>
             </div>
         </div>
-        <HousingGrid loans={sortedLoans}/>
+        {loading ? (
+            <div className="loading-container">
+                <div className="loading-spinner"></div>
+                <p>Searching...</p>
+            </div>
+        ) : (
+            <HousingGrid loans={sortedLoans} />
+        )}
     </div>
   )
 }
