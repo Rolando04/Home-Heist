@@ -133,7 +133,7 @@ code {
   align-items: center;
   padding: 20px 40px;
   border-bottom: 3px solid var(--border);
-  margin-bottom: 20px;
+  margin-bottom: 0px;
 }
 .Logo {
   display: flex;
@@ -165,6 +165,12 @@ code {
 
 .nav a:hover {
   color: var(--accent);
+}
+
+.nav a.active {
+  color: var(--shadow-header);
+  text-shadow: 0 1px 2px var(--shadow-header);
+  text-decoration: none;
 }
 
 .footer {

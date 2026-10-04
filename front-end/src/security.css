@@ -1,0 +1,42 @@
+.security-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: monospace;
+  font-size: 12px;
+  letter-spacing: 1px;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  background: red;
+  border-radius: 50%;
+  box-shadow: 0 0 8px red;
+}
+
+.classified {
+  position: absolute;
+  top: 220px;
+  left: 40px;
+
+  font-size: 36px;
+  font-weight: 900;
+  letter-spacing: 2px;
+
+  color: #8b0000;
+  opacity: 0.5;
+
+  transform: rotate(-35deg) scaleX(1.4);
+
+  pointer-events: none;
+  z-index: 0;
+  border: 2px solid #ffffff;
+  background-color: rgba(224, 5, 5, 0.898);
+  padding: 10px 20px;
+}
+
+.classified p{
+  color: #fffefe;
+  text-shadow: 0 0 5px #ffffff;
+}
