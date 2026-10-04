@@ -21,9 +21,15 @@ function HousingCard({
   apr,
   minCreditScore,
   maxCreditScore,
+  productLink,
 }: HousingCardProps) {
   return (
-    <div className="housing-card">
+    <a
+    className="housing-card"
+    href={productLink}
+    target="_blank"
+    rel="noopener noreferrer"
+    >
       <div className="housing-card-header">
         <h3>{productName}</h3>
         <p>{lender}</p>
@@ -58,7 +64,7 @@ function HousingCard({
           </span>
         </h4>
       </div>
-    </div>
+    </a>
   )
 }
 

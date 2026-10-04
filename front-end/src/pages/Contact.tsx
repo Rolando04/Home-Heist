@@ -15,9 +15,9 @@ function Contact() {
           <p>Database Developer</p>
           <p>john@example.com</p>
           <div className="contact-links">
-            <a href="https://www.linkedin.com/in/johndoe"target="_blank"rel="noopener noreferrer">LinkedIn</a>
+            <a href="https://www.linkedin.com/in/jamesahaddock/"target="_blank"rel="noopener noreferrer">LinkedIn</a>
 
-            <a href="https://github.com/johndoe"target="_blank"rel="noopener noreferrer">GitHub</a>
+            <a href="https://github.com/ProbablyJamesH"target="_blank"rel="noopener noreferrer">GitHub</a>
           </div>
         </div>
 
@@ -26,9 +26,9 @@ function Contact() {
           <p>Backend Developer / AI Specialist</p>
           <p>jane@example.com</p>
           <div className="contact-links">
-            <a href="https://www.linkedin.com/in/johndoe"target="_blank"rel="noopener noreferrer">LinkedIn</a>
+            <a href="https://www.linkedin.com/in/james-gladden-grc/"target="_blank"rel="noopener noreferrer">LinkedIn</a>
 
-            <a href="https://github.com/johndoe"target="_blank"rel="noopener noreferrer">GitHub</a>
+            <a href="https://github.com/jamesgladdenworld"target="_blank"rel="noopener noreferrer">GitHub</a>
           </div>
         </div>
 
@@ -37,9 +37,9 @@ function Contact() {
           <p>Frontend Developer</p>
           <p>rolandoecastrellon@gmail.com</p>
           <div className="contact-links">
-            <a href="https://www.linkedin.com/in/johndoe"target="_blank"rel="noopener noreferrer">LinkedIn</a>
+            <a href="https://www.linkedin.com/in/rolando-castrellon/"target="_blank"rel="noopener noreferrer">LinkedIn</a>
 
-            <a href="https://github.com/johndoe"target="_blank"rel="noopener noreferrer">GitHub</a>
+            <a href="https://github.com/Rolando04"target="_blank"rel="noopener noreferrer">GitHub</a>
           </div>
         </div>
       </div>

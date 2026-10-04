@@ -33,6 +33,11 @@
   max-width: 400px;
   margin: 30px;
   width: 200px;
+
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+
 }
 
 .query-container {
@@ -216,5 +221,27 @@
 
   to {
     transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 600px) {
+  .query-container {
+    width: 95%;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .search-container {
+    width: 100%;
+  }
+
+  .search-container input {
+    width: 100%;
+    font-size: 16px;
+  }
+
+  .search-container button {
+    padding: 0 20px;
+    font-size: 16px;
   }
 }

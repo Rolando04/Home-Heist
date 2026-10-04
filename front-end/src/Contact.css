@@ -16,12 +16,16 @@
 }
 
 .contact-card {
+  display: flex;
+  flex-direction: column;
   padding: 30px 20px;
   background: white;
   border: 2px solid #8b0000;
   border-radius: 12px;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   min-width: 250px;
+  height: 250px;
+  box-sizing: border-box;
 }
 
 .contact-card:hover {
@@ -40,8 +44,8 @@
 .contact-links {
   display: flex;
   justify-content: center;
-  gap: 12px;
-  margin-top: 20px;
+  gap: 10px;
+  margin-top: auto;
 }
 
 .contact-links a {
@@ -56,4 +60,13 @@
 .contact-links a:hover {
   transform: translateY(-2px);
   opacity: 0.85;
+}
+
+@media (max-width: 900px) {
+  .contact-grid {
+    grid-template-columns: 1fr;
+    gap: 25px;
+    width: 100%;
+  }
+
 }
