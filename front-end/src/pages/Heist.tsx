@@ -58,7 +58,7 @@ function Heist() {
         setRecommendation("")
 
         try {
-            const res = await fetch("http://localhost:3001/recommend", {
+            const res = await fetch(`${import.meta.env.VITE_AGENTS_URL}/recommend`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

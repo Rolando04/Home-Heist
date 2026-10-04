@@ -5,7 +5,8 @@ import { recommend } from "./orchestrator.js";
 import { searchLoans, type BorrowerProfile } from "./db.js";
 
 const app = express();
-const PORT = Number(process.env.AGENTS_PORT ?? 3001);
+// Hosting platforms (Render/Railway/Fly) inject PORT; locally default 3001.
+const PORT = Number(process.env.PORT ?? process.env.AGENTS_PORT ?? 3001);
 
 app.use(cors());
 app.use(express.json());
