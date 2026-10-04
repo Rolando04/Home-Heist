@@ -1,8 +1,12 @@
 import '../index.css'
+import '../security.css'
 
 function Home() {
   return (
     <div>
+      <div className="classified">
+        <p>CONFIDENTIAL</p>
+      </div>
       <div className="hero">
         <div className="hero-intro">
           <h1>Meet the Team</h1>

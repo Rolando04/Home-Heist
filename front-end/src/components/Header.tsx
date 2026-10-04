@@ -1,5 +1,5 @@
 
-import { Link } from 'react-router-dom'
+import { NavLink } from 'react-router-dom'
 import '../index.css'
 
 
@@ -14,9 +14,9 @@ function Header() {
         </div>
 
         <div className="nav">
-            <Link to="/">Home</Link>
-            <Link to="/heist">Heist</Link>
-            <Link to="/contact">Contact</Link>
+            <NavLink to="/">Home</NavLink>
+            <NavLink to="/heist">Heist</NavLink>
+            <NavLink to="/contact">Contact</NavLink>
         </div>
         </div>
     </header>

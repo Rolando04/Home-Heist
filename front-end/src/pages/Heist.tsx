@@ -13,7 +13,7 @@ function Heist() {
     })
   return (
 
-    <div>
+    <div className="heist-page">
         <div className="query-container">
             <div className="sort-container">
                 <label htmlFor="sort">Sort by:</label>

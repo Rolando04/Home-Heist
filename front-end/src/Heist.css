@@ -26,7 +26,7 @@
   align-items: center;
   justify-content: center;
   padding: 20px;
-  border: 3px solid var(--border);
+  border: 2px solid var(--border);
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   background-color: #fff;
@@ -58,4 +58,21 @@
   flex-direction: row;
   align-items: left;
   justify-content: left;
+}
+
+.heist-page{
+  
+  min-height: 100vh;
+  padding: 40px 0;
+
+  background-image: url("../src/assets/safe_bg.jpg");
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+}
+
+.housing-card:hover{
+  transform: translateY(-8px);
+  border-color: #ff0000;
+  box-shadow: 0 12px 25px rgba(139, 0, 0, 0.4);
 }
