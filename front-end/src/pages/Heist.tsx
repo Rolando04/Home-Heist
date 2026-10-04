@@ -27,6 +27,13 @@ function Heist() {
 
     const fetchLoans = () => {
     fetch("http://localhost:3000/api/loan-products")
+    const [search, setSearch] = useState("")
+    const [loading, setLoading] = useState(false)
+
+    useEffect(() => {
+    setLoading(true)
+
+    fetch(`${import.meta.env.VITE_API_URL}/api/loan-products`)
         .then((response) => response.json())
         .then((rows) => {
             setLoans(rows)
@@ -67,6 +74,28 @@ function Heist() {
             fetchLoans()
         }
     }
+        .finally(() => {
+            setLoading(false)
+        })
+}, [])
+
+    const handleSearch = () => {
+    setLoading(true)
+
+    fetch(
+        `${import.meta.env.VITE_API_URL}/api/loan-products?search=${encodeURIComponent(search)}`
+    )
+        .then((response) => response.json())
+        .then((rows) => {
+            setLoans(rows)
+        })
+        .catch((error) => {
+            console.error("Search failed:", error)
+        })
+        .finally(() => {
+            setLoading(false)
+        })
+}
 
     const sortedLoans = [...loans].sort((a, b) => {
         if (sortOption === 'apr-low') {
@@ -107,19 +136,31 @@ function Heist() {
                     <option value="apr-high">APR Highest</option>
                 </select>
             </div>
-            <div className="filter-dropdown">
-                <label htmlFor="filter">Filter by:</label>
-                <select id="filter" name="filter">
-                    <option value="veterans">Veterans</option>
-                    <option value="lowIncome">Low Income</option>
-                </select>
-            </div>
-            <div className="search-container">
+            {/* <div className="search-container">
                 <input type="text" placeholder="Search by Lender or Loan..." />
                 <button>Search</button>
+            </div> */}
+            <div className="search-container">
+                <input
+                    type="text"
+                    placeholder="Search by Lender or Loan..."
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                />
+
+                <button onClick={handleSearch}>
+                    Search
+                </button>
             </div>
         </div>
-        <HousingGrid loans={sortedLoans}/>
+        {loading ? (
+            <div className="loading-container">
+                <div className="loading-spinner"></div>
+                <p>Searching...</p>
+            </div>
+        ) : (
+            <HousingGrid loans={sortedLoans} />
+        )}
     </div>
   )
 }

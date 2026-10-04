@@ -183,3 +183,31 @@ code {
   top: 0;
   z-index: 1000;
 }
+
+@media (max-width: 600px) {
+  .header-container {
+    padding: 15px;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .Logo img {
+    width: 50px;
+    height: 50px;
+  }
+
+  .header-container h1 {
+    font-size: 32px;
+    margin: 0;
+  }
+
+  .nav {
+    gap: 15px;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .nav a {
+    font-size: 20px;
+  }
+}

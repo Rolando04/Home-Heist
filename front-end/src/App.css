@@ -226,3 +226,32 @@
   font-size: 64px;
   margin-bottom: 20px;
 }
+
+
+@media (max-width: 600px) {
+  .hero{
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+  }
+  .hero-content {
+    padding: 10px;
+    margin: 0;
+    flex-direction: column;
+  }
+
+  .hero-image {
+    width: 200px;
+    height: 280px;
+  }
+
+  .hero-intro h1 {
+    font-size: 40px;
+  }
+
+  .about-section {
+    margin: 25px 15px;
+    padding: 15px;
+    padding-bottom: 30px;
+  }
+}
