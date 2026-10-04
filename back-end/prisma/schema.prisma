@@ -45,7 +45,7 @@ model loan_search {
 
 model product_user {
   user_id       String        @id @db.VarChar(128)
-  email         String?       @db.VarChar(128)
+  email         String?       @unique(map: "product_user_email_unique") @db.VarChar(128)
   passwordhash  String?       @db.VarChar(255)
   creation_time DateTime?     @db.Time(6)
   creation_date DateTime?     @db.Date
