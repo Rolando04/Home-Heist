@@ -41,10 +41,26 @@ cp .env.example .env                            # add GEMINI_API_KEY
 ## Run
 
 ```bash
-npm run dev          # full pipeline on the demo profile in src/index.ts
+npm run dev          # one-shot CLI pipeline on the demo profile in src/index.ts
+npm run serve        # HTTP server on :3001 (see "HTTP API" below)
 npm run seed         # load fallback rows into the DB
 npm run typecheck
 ```
+
+## HTTP API
+
+`npm run serve` exposes the pipeline to the website:
+
+- `GET /health` -> `{ "status": "ok" }`
+- `POST /recommend` — body:
+  `{ "income": 95000, "creditScore": 710, "zip": "30308",
+     "propertyPrice": 350000, "downPayment": 35000,
+     "loanAmount"?: 315000, "loanType"?: "30-year fixed", "termMonths"?: 360 }`
+  (`loanAmount` defaults to `propertyPrice - downPayment`)
+  -> `{ "recommendation": string, "institutionsFound": n, "loansFound": n }`
+
+Expect 30-90s per request with live grounding; falls back to DB rows if
+the Gemini key/quota is unavailable.
 
 ## Pieces
 

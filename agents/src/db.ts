@@ -37,9 +37,22 @@ export interface LoanProductRow {
   product_link: string | null;
 }
 
+// Column-width guards: model-extracted strings can overrun varchar(n).
+const t = (s: string | null, n: number): string | null =>
+  s == null ? null : s.slice(0, n);
+
 export async function upsertInstitution(
   i: Omit<InstitutionRow, "institution_id"> & { institution_id?: string },
 ): Promise<string> {
+  // Reuse an existing row with the same name — collectors extract slightly
+  // different name variants and we don't want one row per spelling.
+  if (!i.institution_id) {
+    const { rows } = await pool.query(
+      `select institution_id from institution where institution_name ilike $1 limit 1`,
+      [i.institution_name.trim()],
+    );
+    if (rows[0]) return rows[0].institution_id;
+  }
   const id = i.institution_id ?? crypto.randomUUID();
   await pool.query(
     `insert into institution (institution_id, institution_name, institution_type, institution_link)
@@ -48,7 +61,7 @@ export async function upsertInstitution(
        set institution_name = excluded.institution_name,
            institution_type = excluded.institution_type,
            institution_link = excluded.institution_link`,
-    [id, i.institution_name, i.institution_type, i.institution_link],
+    [id, t(i.institution_name, 128), t(i.institution_type, 255), t(i.institution_link, 255)],
   );
   return id;
 }
@@ -56,6 +69,14 @@ export async function upsertInstitution(
 export async function upsertLoanProduct(
   l: Omit<LoanProductRow, "product_id"> & { product_id?: string },
 ): Promise<string> {
+  if (!l.product_id) {
+    const { rows } = await pool.query(
+      `select product_id from loan_product
+         where institution_id = $1 and product_name ilike $2 limit 1`,
+      [l.institution_id, l.product_name.trim()],
+    );
+    if (rows[0]) return rows[0].product_id;
+  }
   const id = l.product_id ?? crypto.randomUUID();
   await pool.query(
     `insert into loan_product
@@ -74,14 +95,14 @@ export async function upsertLoanProduct(
     [
       id,
       l.institution_id,
-      l.product_name,
-      l.loan_type,
+      t(l.product_name, 128),
+      t(l.loan_type, 128),
       l.term_months,
       l.interest_rate,
       l.apr,
       l.min_credit_score,
       l.max_credit_score,
-      l.product_link,
+      t(l.product_link, 255),
     ],
   );
   return id;
