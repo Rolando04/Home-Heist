@@ -76,3 +76,65 @@
   border-color: #ff0000;
   box-shadow: 0 12px 25px rgba(139, 0, 0, 0.4);
 }
+
+.profile-form {
+  width: 90%;
+  max-width: 1200px;
+  margin: 0 auto 30px;
+  padding: 20px;
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+}
+
+.profile-form h3 {
+  margin: 0 0 12px;
+}
+
+.profile-fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.profile-fields input {
+  flex: 1 1 150px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.profile-fields button {
+  flex: 1 1 150px;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 6px;
+  background-color: #8b0000;
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.profile-fields button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.recommendation-card {
+  width: 90%;
+  max-width: 1200px;
+  margin: 0 auto 30px;
+  padding: 20px;
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+}
+
+.recommendation-card pre {
+  white-space: pre-wrap;
+  font-family: inherit;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
