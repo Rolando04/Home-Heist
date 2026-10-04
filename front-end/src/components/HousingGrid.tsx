@@ -1,11 +1,18 @@
 import HousingCard from "./HousingCard"
 
 type Loan = {
-  loanName: string
-  lender: string
+  product_id: string
+  product_name: string
+  loan_type: string
+  term_months: number
+  interest_rate: number
   apr: number
-  veteransEligible: boolean
-  lowIncomeEligible: boolean
+  min_credit_score: number
+  max_credit_score: number
+  product_link: string
+  institution: {
+    institution_name: string
+  }
 }
 
 type HousingGridProps = {
@@ -13,19 +20,24 @@ type HousingGridProps = {
 }
 
 function HousingGrid({ loans }: HousingGridProps) {
-    return (
-<div className="housing-grid">
+  return (
+    <div className="housing-grid">
       {loans.map((loan) => (
-    <HousingCard
-      LoanName={loan.loanName}
-      lender={loan.lender}
-      apr={loan.apr}
-      veteransEligible={loan.veteransEligible}
-      lowIncomeEligible={loan.lowIncomeEligible}
-    />
-  ))}
-</div>
-    )
+        <HousingCard
+          key={loan.product_id}
+          productName={loan.product_name}
+          lender={loan.institution.institution_name}
+          loanType={loan.loan_type}
+          termMonths={loan.term_months}
+          interestRate={loan.interest_rate}
+          apr={loan.apr}
+          minCreditScore={loan.min_credit_score}
+          maxCreditScore={loan.max_credit_score}
+          productLink={loan.product_link}
+        />
+      ))}
+    </div>
+  )
 }
 
 export default HousingGrid

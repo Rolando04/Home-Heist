@@ -1,15 +1,45 @@
 import HousingGrid from "../components/HousingGrid"
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+
+
+type Loan = {
+  product_id: string
+  product_name: string
+  loan_type: string
+  term_months: number
+  interest_rate: number
+  apr: number
+  min_credit_score: number
+  max_credit_score: number
+  product_link: string
+  institution: {
+    institution_name: string
+    institution_type: string
+    institution_link: string
+  }
+}
 
 function Heist() {
     const [sortOption, setSortOption] = useState('apr-low')
+    const [loans, setLoans] = useState<Loan[]>([])
+
+    useEffect(() => {
+    fetch("http://localhost:3000/api/loan-products")
+        .then((response) => response.json())
+        .then((rows) => {
+            setLoans(rows)
+        })
+        .catch((error) => {
+            console.error("Failed to fetch loans:", error)
+        })
+}, [])
 
     const sortedLoans = [...loans].sort((a, b) => {
         if (sortOption === 'apr-low') {
-        return a.apr - b.apr
+        return Number(a.apr) - Number(b.apr)
         }
 
-        return b.apr - a.apr
+        return Number(b.apr) - Number(a.apr)
     })
   return (
 
@@ -40,40 +70,6 @@ function Heist() {
     </div>
   )
 }
-
-const loans = [
-  {
-    loanName: 'VA Home Loan',
-    lender: 'USAA',
-    apr: 6.125,
-    veteransEligible: true,
-    lowIncomeEligible: false,
-  },
-
-  {
-    loanName: 'FHA Home Loan',
-    lender: 'Rocket Mortgage',
-    apr: 6.45,
-    veteransEligible: false,
-    lowIncomeEligible: true,
-  },
-
-  {
-    loanName: 'Conventional 30-Year',
-    lender: 'Bank of America',
-    apr: 6.75,
-    veteransEligible: false,
-    lowIncomeEligible: false,
-  },
-
-  {
-    loanName: 'USDA Home Loan',
-    lender: 'Wells Fargo',
-    apr: 6.25,
-    veteransEligible: false,
-    lowIncomeEligible: true,
-  },
-]
 
 
 export default Heist
