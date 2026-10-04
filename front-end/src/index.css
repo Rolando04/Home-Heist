@@ -52,16 +52,22 @@
   }
 }
 
+html{
+  box-sizing: border-box;
+  min-height: 100%;
+  margin: 0;
+}
+
 #root {
   width: 100%;
   max-width: 1600px;
   margin: 0 auto;
   text-align: center;
   border-inline: 0px solid var(--border);
-  min-height: 100svh;
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
+  min-height: 100vh;
 }
 
 body {
@@ -159,4 +165,15 @@ code {
 
 .nav a:hover {
   color: var(--accent);
+}
+
+.footer {
+  background-color: var(--bg-header);
+  color: var(--text-h);
+  text-align: center;
+  padding: 20px;
+  border-top: 3px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 }
