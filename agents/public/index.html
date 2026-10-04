@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Home-Heist — Agent Demo</title>
+  <style>
+    * { box-sizing: border-box; font-family: system-ui, sans-serif; }
+    body { margin: 0; background: #0f1115; color: #e8e9ec; }
+    main { max-width: 860px; margin: 0 auto; padding: 2rem 1rem; }
+    h1 { font-size: 1.4rem; }
+    h1 span { color: #6ea8fe; }
+    form { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: .6rem; margin: 1.2rem 0; }
+    label { font-size: .72rem; color: #9aa0ab; display: block; margin-bottom: .2rem; }
+    input { width: 100%; padding: .55rem .6rem; border-radius: 8px; border: 1px solid #2a2f3a; background: #171a21; color: #e8e9ec; }
+    button { grid-column: 1 / -1; padding: .7rem; border: 0; border-radius: 8px; background: #6ea8fe; color: #0f1115; font-weight: 700; cursor: pointer; }
+    button:disabled { opacity: .5; cursor: wait; }
+    #status { font-size: .85rem; color: #9aa0ab; min-height: 1.2rem; }
+    #rec { white-space: pre-wrap; background: #171a21; border: 1px solid #2a2f3a; border-radius: 10px; padding: 1rem; font-size: .88rem; display: none; }
+    #products { display: none; }
+    table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+    th, td { text-align: left; padding: .5rem .4rem; border-bottom: 1px solid #2a2f3a; }
+    th { color: #9aa0ab; font-weight: 600; }
+    a { color: #6ea8fe; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Home-Heist <span>// agent preview</span></h1>
+  <form id="f">
+    <div><label>ZIP code *</label><input name="zip" value="30308" required /></div>
+    <div><label>Credit score *</label><input name="creditScore" type="number" value="710" required /></div>
+    <div><label>Annual income *</label><input name="income" type="number" value="95000" required /></div>
+    <div><label>Home price *</label><input name="propertyPrice" type="number" value="350000" required /></div>
+    <div><label>Down payment *</label><input name="downPayment" type="number" value="35000" required /></div>
+    <div><label>Email (optional)</label><input name="email" type="email" placeholder="you@example.com" /></div>
+    <button id="go" type="submit">Find my rates</button>
+  </form>
+  <p id="status"></p>
+  <div id="rec"></div>
+
+  <div id="products">
+    <h2>Products in database</h2>
+    <table>
+      <thead><tr><th>Lender</th><th>Product</th><th>Type</th><th>Term</th><th>Rate</th><th>APR</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+</main>
+<script>
+const statusEl = document.getElementById("status");
+const recEl = document.getElementById("rec");
+const productsEl = document.getElementById("products");
+
+async function loadProducts() {
+  const rows = await (await fetch("/products")).json();
+  document.getElementById("rows").innerHTML = rows.map((r) => `
+    <tr>
+      <td>${r.institution_name ?? "—"}</td>
+      <td>${r.product_link ? `<a href="${r.product_link}" target="_blank">${r.product_name}</a>` : r.product_name}</td>
+      <td>${r.loan_type ?? "—"}</td>
+      <td>${r.term_months ? r.term_months + " mo" : "—"}</td>
+      <td>${r.interest_rate ?? "—"}%</td>
+      <td><b>${r.apr ?? "—"}%</b></td>
+    </tr>`).join("");
+  productsEl.style.display = rows.length ? "block" : "none";
+}
+
+document.getElementById("f").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  const body = Object.fromEntries(fd.entries());
+  for (const k of ["income", "creditScore", "propertyPrice", "downPayment"]) body[k] = Number(body[k]);
+  if (!body.email) delete body.email;
+
+  const btn = document.getElementById("go");
+  btn.disabled = true;
+  statusEl.textContent = "Agents are hunting rates… (~1 min)";
+  recEl.style.display = "none";
+  try {
+    const res = await fetch("/recommend", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || res.statusText);
+    recEl.textContent = data.recommendation;
+    recEl.style.display = "block";
+    statusEl.textContent = `Done — ${data.institutionsFound} institutions, ${data.loansFound} products found.`;
+  } catch (err) {
+    statusEl.textContent = "Error: " + err.message;
+  } finally {
+    btn.disabled = false;
+    loadProducts();
+  }
+});
+
+loadProducts();
+</script>
+</body>
+</html>

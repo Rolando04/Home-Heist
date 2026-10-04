@@ -2,7 +2,7 @@ import { Agent } from "./agent.js";
 import { collectInstitutions, collectLoans } from "./collectors.js";
 import { createDbMcpClient } from "./dbMcp.js";
 import { fetchHmdaFilers, zipToCounty } from "./hmda.js";
-import { logSearch, searchLoans, type BorrowerProfile } from "./db.js";
+import { findOrCreateUser, logSearch, searchLoans, type BorrowerProfile } from "./db.js";
 
 export interface RecommendResult {
   institutionsFound: number;
@@ -19,7 +19,10 @@ export interface RecommendResult {
  *  4. Main agent queries the DB through MCP and synthesizes a
  *     recommendation for the borrower.
  */
-export async function recommend(p: BorrowerProfile): Promise<RecommendResult> {
+export async function recommend(
+  p: BorrowerProfile,
+  email?: string,
+): Promise<RecommendResult> {
   const geo = await zipToCounty(p.zip);
   const filers = geo ? await fetchHmdaFilers(geo) : [];
   const institutions = await collectInstitutions(
@@ -52,14 +55,16 @@ export async function recommend(p: BorrowerProfile): Promise<RecommendResult> {
           `loan amount $${p.loanAmount}` +
           (p.loanType ? `, wants ${p.loanType}` : "") +
           (p.termMonths ? `, ${p.termMonths}-month term` : "") +
-          `. Query the database, log this search, then give your recommendation.`,
+          `. Query the database, log this search` +
+          (email ? ` (pass email "${email}" to log_search so it links to the user)` : "") +
+          `, then give your recommendation.`,
       );
     } catch (e) {
       console.warn(
         `[main-agent] recommendation failed, using deterministic fallback: ` +
           `${(e as Error).message.slice(0, 160)}`,
       );
-      recommendation = await fallbackRecommendation(p);
+      recommendation = await fallbackRecommendation(p, email);
     }
 
     return {
@@ -77,8 +82,12 @@ export async function recommend(p: BorrowerProfile): Promise<RecommendResult> {
  * compute P&I payments directly. Produces a real (if plain) answer so a
  * live demo never dead-ends.
  */
-async function fallbackRecommendation(p: BorrowerProfile): Promise<string> {
-  await logSearch(null, p).catch(() => {});
+async function fallbackRecommendation(
+  p: BorrowerProfile,
+  email?: string,
+): Promise<string> {
+  const userId = email ? await findOrCreateUser(email).catch(() => null) : null;
+  await logSearch(userId, p).catch(() => {});
   const rows = await searchLoans({ creditScore: p.creditScore });
   if (!rows.length) return "No loan products in the database.";
 

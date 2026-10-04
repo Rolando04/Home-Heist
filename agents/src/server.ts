@@ -2,16 +2,26 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import { recommend } from "./orchestrator.js";
-import type { BorrowerProfile } from "./db.js";
+import { searchLoans, type BorrowerProfile } from "./db.js";
 
 const app = express();
 const PORT = Number(process.env.AGENTS_PORT ?? 3001);
 
 app.use(cors());
 app.use(express.json());
+app.use(express.static(new URL("../public", import.meta.url).pathname));
 
 app.get("/health", (_req, res) => {
   res.json({ status: "ok" });
+});
+
+app.get("/products", async (_req, res) => {
+  try {
+    res.json(await searchLoans({}));
+  } catch (e) {
+    console.error("[products] failed:", e);
+    res.status(500).json({ error: "failed to fetch products" });
+  }
 });
 
 /**
@@ -62,7 +72,10 @@ app.post("/recommend", async (req, res) => {
   };
 
   try {
-    const result = await recommend(profile);
+    const result = await recommend(
+      profile,
+      typeof b.email === "string" && b.email ? b.email : undefined,
+    );
     res.json(result);
   } catch (e) {
     console.error("[recommend] failed:", e);
