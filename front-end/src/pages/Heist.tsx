@@ -54,13 +54,6 @@ function Heist() {
                     <option value="apr-high">APR Highest</option>
                 </select>
             </div>
-            <div className="filter-dropdown">
-                <label htmlFor="filter">Filter by:</label>
-                <select id="filter" name="filter">
-                    <option value="veterans">Veterans</option>
-                    <option value="lowIncome">Low Income</option>
-                </select>
-            </div>
             <div className="search-container">
                 <input type="text" placeholder="Search by Lender or Loan..." />
                 <button>Search</button>
