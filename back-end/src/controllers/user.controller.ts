@@ -63,7 +63,65 @@ export async function createUser(req: Request, res: Response) {
 
     res.status(201).json(safeUser);
   } catch (error) {
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "code" in error &&
+      error.code === "P2002"
+    ) {
+      return res.status(409).json({
+        error: "An account with this email already exists",
+      });
+    }
+
     console.error(error);
     res.status(500).json({ error: "Failed to create user" });
+  }
+}
+
+export async function loginUser(req: Request, res: Response) {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({
+        error: "Email and password are required",
+      });
+    }
+
+    const user = await prisma.product_user.findUnique({
+      where: {
+        email,
+      },
+    });
+
+    if (!user || !user.passwordhash) {
+      return res.status(401).json({
+        error: "Invalid email or password",
+      });
+    }
+
+    const passwordMatches = await bcrypt.compare(
+      password,
+      user.passwordhash
+    );
+
+    if (!passwordMatches) {
+      return res.status(401).json({
+        error: "Invalid email or password",
+      });
+    }
+
+    const { passwordhash: _passwordhash, ...safeUser } = user;
+
+    res.status(200).json({
+      message: "Login successful",
+      user: safeUser,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      error: "Failed to log in",
+    });
   }
 }

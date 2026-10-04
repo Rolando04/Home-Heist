@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS product_user (
   user_id varchar(128) primary key,
-  email varchar(128),
+  email varchar(128) UNIQUE,
   passwordHash varchar(255),
   creation_time time,
   creation_date date
