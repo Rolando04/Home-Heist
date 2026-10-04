@@ -7,7 +7,7 @@ import loanSearchRoutes from "./routes/loan-search.routes";
 import userRoutes from "./routes/user.routes";
 
 const app = express();
-const PORT = 3000;
+const PORT = Number(process.env.PORT) || 3000;
 
 app.use(cors());
 app.use(express.json());
@@ -23,6 +23,6 @@ app.use("/api/loan-products", loanProductRoutes);
 app.use("/api/loan-searches", loanSearchRoutes);
 app.use("/api/users", userRoutes);
 
-app.listen(PORT, () => {
+app.listen(PORT, "0.0.0.0", () => {
   console.log(`Home-Heist API running on port ${PORT}`);
 });
