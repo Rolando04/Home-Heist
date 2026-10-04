@@ -21,7 +21,6 @@ function HousingCard({
   apr,
   minCreditScore,
   maxCreditScore,
-  productLink,
 }: HousingCardProps) {
   return (
     <div className="housing-card">

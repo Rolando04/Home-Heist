@@ -24,7 +24,7 @@ function Heist() {
     const [loans, setLoans] = useState<Loan[]>([])
 
     useEffect(() => {
-    fetch("http://localhost:3000/api/loan-products")
+    fetch(`${import.meta.env.VITE_API_URL}/api/loan-products`)
         .then((response) => response.json())
         .then((rows) => {
             setLoans(rows)
