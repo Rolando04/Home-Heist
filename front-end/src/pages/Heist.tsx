@@ -72,16 +72,18 @@ function Heist() {
                 <input type="text" placeholder="Search by Lender or Loan..." />
                 <button>Search</button>
             </div> */}
-            <input
-                type="text"
-                placeholder="Search by Lender or Loan..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-            />
+            <div className="search-container">
+                <input
+                    type="text"
+                    placeholder="Search by Lender or Loan..."
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                />
 
-            <button onClick={handleSearch}>
-                Search
-            </button>
+                <button onClick={handleSearch}>
+                    Search
+                </button>
+            </div>
         </div>
         <HousingGrid loans={sortedLoans}/>
     </div>
