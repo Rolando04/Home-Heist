@@ -55,8 +55,10 @@ npm run typecheck
 - `POST /recommend` — body:
   `{ "income": 95000, "creditScore": 710, "zip": "30308",
      "propertyPrice": 350000, "downPayment": 35000,
-     "loanAmount"?: 315000, "loanType"?: "30-year fixed", "termMonths"?: 360 }`
-  (`loanAmount` defaults to `propertyPrice - downPayment`)
+     "loanAmount"?: 315000, "loanType"?: "30-year fixed", "termMonths"?: 360,
+     "email"?: "user@example.com" }`
+  (`loanAmount` defaults to `propertyPrice - downPayment`; `email`
+  creates/reuses a `product_user` row and links the logged search)
   -> `{ "recommendation": string, "institutionsFound": n, "loansFound": n }`
 
 Expect 30-90s per request with live grounding; falls back to DB rows if

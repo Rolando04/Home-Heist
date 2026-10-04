@@ -163,6 +163,23 @@ export async function listInstitutions(
   return rows;
 }
 
+/** Find or create a product_user row by email; returns user_id. */
+export async function findOrCreateUser(email: string): Promise<string> {
+  const existing = await pool.query(
+    `select user_id from product_user where email = $1 limit 1`,
+    [email],
+  );
+  if (existing.rows[0]) return existing.rows[0].user_id;
+  const id = crypto.randomUUID();
+  const now = new Date();
+  await pool.query(
+    `insert into product_user (user_id, email, creation_time, creation_date)
+     values ($1, $2, $3, $4)`,
+    [id, email, now.toTimeString().slice(0, 8), now.toISOString().slice(0, 10)],
+  );
+  return id;
+}
+
 export async function logSearch(
   userId: string | null,
   p: BorrowerProfile,

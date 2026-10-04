@@ -3,6 +3,7 @@ import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { z } from "zod";
 import {
+  findOrCreateUser,
   listInstitutions,
   logSearch,
   searchLoans,
@@ -53,13 +54,17 @@ export async function createDbMcpClient(): Promise<Client> {
       propertyPrice: z.number(),
       downPayment: z.number(),
       loanAmount: z.number(),
+      email: z.string().optional(),
     },
-    async (p) => ({
+    async ({ email, ...p }) => ({
       content: [
         {
           type: "text",
           text: JSON.stringify(
-            await logSearch(null, p as BorrowerProfile),
+            await logSearch(
+              email ? await findOrCreateUser(email) : null,
+              p as BorrowerProfile,
+            ),
           ),
         },
       ],
