@@ -1,6 +1,7 @@
 
 import { NavLink } from 'react-router-dom'
 import '../index.css'
+import Logo from "../src/assets/Logo-RH.png"
 
 
 function Header() {
@@ -9,7 +10,7 @@ function Header() {
     <header className="header">
     <div className="header-container">
         <div className="Logo">
-            <img src="../src/assets/Logo-RH.png" alt="Logo" />
+            <img src={Logo} alt="Logo" />
             <h1>Home Heist</h1>
         </div>
 

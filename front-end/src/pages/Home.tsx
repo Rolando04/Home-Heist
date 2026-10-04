@@ -1,5 +1,8 @@
 import '../index.css'
 import '../security.css'
+import James_hero from '../assets/James_hero.jpg'
+import jglad_hero from '../assets/jglad_hero.jpeg'
+import REC_hero from '../assets/REC_hero.jpeg'
 
 function Home() {
   return (
@@ -12,17 +15,17 @@ function Home() {
           <h1>Meet the Team</h1>
         </div>
         <div className="hero-content">
-          <img src="../src/assets/James_hero.jpg" alt="Hero" className="hero-image" />
+          <img src={James_hero} alt="Hero" className="hero-image" />
           <h2>James Haddock</h2>
           <p>Senior</p>
         </div>
         <div className="hero-content">
-          <img src="../src/assets/jglad_hero.jpeg" alt="Hero" className="hero-image" />
+          <img src={jglad_hero} alt="Hero" className="hero-image" />
           <h2>James Gladden</h2>
           <p>Graduate</p>
         </div>
         <div className="hero-content">
-          <img src="../src/assets/REC_hero.jpeg" alt="Hero" className="hero-image" />
+          <img src={REC_hero} alt="Hero" className="hero-image" />
           <h2>Rolando Castrellon</h2>
           <p>Senior</p>
         </div>
