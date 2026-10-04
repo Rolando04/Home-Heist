@@ -22,6 +22,7 @@ type Loan = {
 function Heist() {
     const [sortOption, setSortOption] = useState('apr-low')
     const [loans, setLoans] = useState<Loan[]>([])
+    const [search, setSearch] = useState("")
 
     useEffect(() => {
     fetch(`${import.meta.env.VITE_API_URL}/api/loan-products`)
@@ -33,6 +34,19 @@ function Heist() {
             console.error("Failed to fetch loans:", error)
         })
 }, [])
+
+    const handleSearch = () => {
+    fetch(
+        `${import.meta.env.VITE_API_URL}/api/loan-products?search=${encodeURIComponent(search)}`
+    )
+        .then((response) => response.json())
+        .then((rows) => {
+            setLoans(rows)
+        })
+        .catch((error) => {
+            console.error("Search failed:", error)
+        })
+}
 
     const sortedLoans = [...loans].sort((a, b) => {
         if (sortOption === 'apr-low') {
@@ -54,9 +68,21 @@ function Heist() {
                     <option value="apr-high">APR Highest</option>
                 </select>
             </div>
-            <div className="search-container">
+            {/* <div className="search-container">
                 <input type="text" placeholder="Search by Lender or Loan..." />
                 <button>Search</button>
+            </div> */}
+            <div className="search-container">
+                <input
+                    type="text"
+                    placeholder="Search by Lender or Loan..."
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                />
+
+                <button onClick={handleSearch}>
+                    Search
+                </button>
             </div>
         </div>
         <HousingGrid loans={sortedLoans}/>

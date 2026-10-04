@@ -1,13 +1,38 @@
 import type { Request, Response } from "express";
 import { prisma } from "../lib/prisma";
 
-export async function getLoanProducts(_req: Request, res: Response) {
+export async function getLoanProducts(req: Request, res: Response) {
   try {
+    const search = req.query.search as string | undefined
+
     const products = await prisma.loan_product.findMany({
-      include: {
-        institution: true,
-      },
-    });
+  ...(search
+    ? {
+        where: {
+          OR: [
+            {
+              product_name: {
+                contains: search,
+              },
+            },
+            {
+              institution: {
+                is: {
+                  institution_name: {
+                    contains: search,
+                  },
+                },
+              },
+            },
+          ],
+        },
+      }
+    : {}),
+
+  include: {
+    institution: true,
+  },
+});
 
     res.json(products);
   } catch (error) {
