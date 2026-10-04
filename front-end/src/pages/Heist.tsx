@@ -26,10 +26,12 @@ function Heist() {
     const [search, setSearch] = useState("")
     const [loading, setLoading] = useState(false)
 
-    const fetchLoans = () => {
+    const fetchLoans = (creditScore?: number) => {
         setLoading(true)
 
-        fetch(`${import.meta.env.VITE_API_URL}/api/loan-products`)
+        const params = creditScore ? `?creditScore=${creditScore}` : ""
+
+        fetch(`${import.meta.env.VITE_API_URL}/api/loan-products${params}`)
             .then((response) => response.json())
             .then((rows) => {
                 setLoans(rows)
@@ -50,6 +52,7 @@ function Heist() {
         e.preventDefault()
 
         const form = new FormData(e.currentTarget)
+        const creditScore = Number(form.get("creditScore"))
 
         setHunting(true)
         setRecommendation("")
@@ -62,7 +65,7 @@ function Heist() {
                 },
                 body: JSON.stringify({
                     zip: form.get("zip"),
-                    creditScore: Number(form.get("creditScore")),
+                    creditScore,
                     income: Number(form.get("income")),
                     propertyPrice: Number(form.get("propertyPrice")),
                     downPayment: Number(form.get("downPayment")),
@@ -80,7 +83,7 @@ function Heist() {
             console.error("Agent search failed:", error)
         } finally {
             setHunting(false)
-            fetchLoans()
+            fetchLoans(creditScore)
         }
     }
 

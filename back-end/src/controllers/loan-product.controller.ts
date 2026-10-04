@@ -4,35 +4,56 @@ import { prisma } from "../lib/prisma";
 export async function getLoanProducts(req: Request, res: Response) {
   try {
     const search = req.query.search as string | undefined
+    const creditScore = Number(req.query.creditScore)
 
     const products = await prisma.loan_product.findMany({
-  ...(search
-    ? {
-        where: {
-          OR: [
-            {
-              product_name: {
-                contains: search,
-              },
-            },
-            {
-              institution: {
-                is: {
-                  institution_name: {
+      where: {
+        ...(search
+          ? {
+              OR: [
+                {
+                  product_name: {
                     contains: search,
+                    mode: "insensitive",
                   },
                 },
-              },
-            },
-          ],
-        },
-      }
-    : {}),
+                {
+                  institution: {
+                    is: {
+                      institution_name: {
+                        contains: search,
+                        mode: "insensitive",
+                      },
+                    },
+                  },
+                },
+              ],
+            }
+          : {}),
+        ...(Number.isFinite(creditScore)
+          ? {
+              AND: [
+                {
+                  OR: [
+                    { min_credit_score: null },
+                    { min_credit_score: { lte: creditScore } },
+                  ],
+                },
+                {
+                  OR: [
+                    { max_credit_score: null },
+                    { max_credit_score: { gte: creditScore } },
+                  ],
+                },
+              ],
+            }
+          : {}),
+      },
 
-  include: {
-    institution: true,
-  },
-});
+      include: {
+        institution: true,
+      },
+    });
 
     res.json(products);
   } catch (error) {
