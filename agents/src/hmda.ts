@@ -20,11 +20,15 @@ export interface HmdaFiler {
   lei?: string;
 }
 
+const FETCH_TIMEOUT_MS = 5000;
+const quickFetch = (url: string) =>
+  fetch(url, { signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) });
+
 /** Resolve a US ZIP to its county FIPS code. Returns null on any failure. */
 export async function zipToCounty(zip: string): Promise<GeoInfo | null> {
   try {
     const z = (await (
-      await fetch(`https://api.zippopotam.us/us/${zip}`)
+      await quickFetch(`https://api.zippopotam.us/us/${zip}`)
     ).json()) as {
       places?: { latitude: string; longitude: string; "state abbreviation": string }[];
     };
@@ -35,7 +39,7 @@ export async function zipToCounty(zip: string): Promise<GeoInfo | null> {
       "https://geocoding.geo.census.gov/geocoder/geographies/coordinates" +
       `?x=${place.longitude}&y=${place.latitude}` +
       "&benchmark=Public_AR_Current&vintage=Current_Current&format=json";
-    const g = (await (await fetch(url)).json()) as {
+    const g = (await (await quickFetch(url)).json()) as {
       result?: {
         geographies?: {
           Counties?: { GEOID: string; NAME: string; STATE: string }[];
@@ -69,7 +73,7 @@ export async function fetchHmdaFilers(geo: GeoInfo): Promise<HmdaFiler[]> {
   ];
   for (const geoParam of attempts) {
     try {
-      const res = await fetch(
+      const res = await quickFetch(
         "https://ffiec.cfpb.gov/v2/data-browser-api/view/filers" +
           `?years=${year}&${geoParam}`,
       );

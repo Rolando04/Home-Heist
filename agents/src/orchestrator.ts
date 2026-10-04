@@ -19,18 +19,35 @@ export interface RecommendResult {
  *  4. Main agent queries the DB through MCP and synthesizes a
  *     recommendation for the borrower.
  */
+// Collection cache: once a county (or ZIP) has been researched, later
+// searches skip straight to the recommendation. Keeps repeat/demo
+// queries fast and avoids re-burning grounding quota.
+const COLLECTION_TTL_MS = 60 * 60 * 1000; // 1 hour
+const collectedAt = new Map<string, number>();
+
 export async function recommend(
   p: BorrowerProfile,
   email?: string,
 ): Promise<RecommendResult> {
   const geo = await zipToCounty(p.zip);
-  const filers = geo ? await fetchHmdaFilers(geo) : [];
-  const institutions = await collectInstitutions(
-    p,
-    geo ? { countyName: geo.countyName, stateAbbr: geo.stateAbbr } : null,
-    filers.map((f) => f.name),
-  );
-  const loansFound = await collectLoans(p, institutions);
+  const cacheKey = geo?.countyFips ?? p.zip;
+  const fresh =
+    Date.now() - (collectedAt.get(cacheKey) ?? 0) < COLLECTION_TTL_MS;
+
+  let institutions: { id: string; name: string }[] = [];
+  let loansFound = 0;
+  if (!fresh) {
+    const filers = geo ? await fetchHmdaFilers(geo) : [];
+    institutions = await collectInstitutions(
+      p,
+      geo ? { countyName: geo.countyName, stateAbbr: geo.stateAbbr } : null,
+      filers.map((f) => f.name),
+    );
+    loansFound = await collectLoans(p, institutions.slice(0, 5));
+    if (loansFound > 0) collectedAt.set(cacheKey, Date.now());
+  } else {
+    console.log(`[orchestrator] county ${cacheKey} fresh — skipping collection`);
+  }
 
   const dbClient = await createDbMcpClient();
   try {

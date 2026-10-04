@@ -99,6 +99,8 @@ export class Agent {
         systemInstruction: this.systemInstruction,
         responseMimeType: "application/json",
         responseJsonSchema,
+        // mechanical extraction — thinking only adds latency
+        thinkingConfig: { thinkingBudget: 0 },
       },
     });
     return JSON.parse(response.text ?? "null") as T;
